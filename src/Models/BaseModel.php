@@ -1,6 +1,6 @@
 <?php
 
-namespace Fidu\Models;
+namespace Fidu\Models\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;

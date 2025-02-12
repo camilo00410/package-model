@@ -1,6 +1,6 @@
 <?php
 
-namespace Models\Providers;
+namespace Fidu\Models\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
