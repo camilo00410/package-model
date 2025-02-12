@@ -2,31 +2,35 @@
 
 namespace Fidu\Models\Models\Users;
 
+use App\Models\Traits\DefaultLogs;
 use App\Models\Traits\HasRolesCustom;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
-use Spatie\Activitylog\Traits\CausesActivity;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Casts\Attribute;
-use App\Models\Traits\DefaultLogs;
 use Spatie\Activitylog\Models\Activity;
+use Spatie\Activitylog\Traits\CausesActivity;
 
 class User extends Authenticatable
 {
-    use DefaultLogs;
     use CausesActivity;
-    use HasFactory, Notifiable, HasApiTokens, HasRolesCustom;
+    use DefaultLogs;
+    use HasApiTokens, HasFactory, HasRolesCustom, Notifiable;
 
     const NOT_LOGGED_IN = 1;
+
     const LOGGED_IN = 0;
 
     protected $guard_name = 'sanctum';
 
-    protected function getDefaultGuardName(): string { return env('AUTH_GUARD'); }
+    protected function getDefaultGuardName(): string
+    {
+        return env('AUTH_GUARD');
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -62,7 +66,7 @@ class User extends Authenticatable
         'account_number',
         'account_type',
         'password',
-        'is_expired_to_role'
+        'is_expired_to_role',
     ];
 
     protected static function boot()
@@ -114,13 +118,14 @@ class User extends Authenticatable
     public function authenticationMethods()
     {
         return $this->belongsToMany(AuthenticationMethod::class, 'authentication_method_user')
-                    ->withPivot('id', 'status_id', 'last_used_at', 'secret_2fa', 'is_verified', 'failed_attempts', 'created_at');
+            ->withPivot('id', 'status_id', 'last_used_at', 'secret_2fa', 'is_verified', 'failed_attempts', 'created_at');
     }
 
     public function getAuthenticationMethodsWithFormattedCreatedAt()
     {
         return $this->authenticationMethods()->get()->map(function ($method) {
             $method->pivot->created_at = \Carbon\Carbon::parse($method->pivot->created_at)->format('d-m-Y H:i:s');
+
             return $method;
         });
     }
@@ -128,15 +133,15 @@ class User extends Authenticatable
     public function authenticationMethodsActives()
     {
         return $this->belongsToMany(AuthenticationMethod::class, 'authentication_method_user')
-                    ->withPivot('status_id', 'last_used_at', 'secret_2fa', 'is_verified', 'created_at')
-                    ->wherePivot('status_id', Status::STATUS_ACTIVE);
+            ->withPivot('status_id', 'last_used_at', 'secret_2fa', 'is_verified', 'created_at')
+            ->wherePivot('status_id', Status::STATUS_ACTIVE);
     }
 
     public function authenticationMethodsIsVerified()
     {
         return $this->belongsToMany(AuthenticationMethod::class, 'authentication_method_user')
-                    ->withPivot('status_id', 'last_used_at', 'secret_2fa', 'is_verified', 'created_at')
-                    ->wherePivot('is_verified', 1);
+            ->withPivot('status_id', 'last_used_at', 'secret_2fa', 'is_verified', 'created_at')
+            ->wherePivot('is_verified', 1);
     }
 
     /**
@@ -151,19 +156,14 @@ class User extends Authenticatable
 
     /**
      * Get the status that the user belongs to.
-     *
-     * @return BelongsTo
      */
     public function status(): BelongsTo
     {
         return $this->belongsTo(Status::class, 'status_id');
     }
 
-
     /**
      * Get the status that the user belongs to.
-     *
-     * @return BelongsTo
      */
     public function bank(): BelongsTo
     {
@@ -172,8 +172,6 @@ class User extends Authenticatable
 
     /**
      * Get the branch that the user belongs to.
-     *
-     * @return BelongsTo
      */
     public function branch(): BelongsTo
     {
@@ -182,8 +180,6 @@ class User extends Authenticatable
 
     /**
      * Get the document type that the user belongs to.
-     *
-     * @return BelongsTo
      */
     public function documentType(): BelongsTo
     {
@@ -192,8 +188,6 @@ class User extends Authenticatable
 
     /**
      * Get the Security Question that the user belongs to.
-     *
-     * @return BelongsTo
      */
     public function securityQuestion(): BelongsTo
     {
@@ -202,48 +196,38 @@ class User extends Authenticatable
 
     /**
      * Get the URL of the signature if it exists, otherwise return null.
-     *
-     * @return Attribute
      */
     protected function signature(): Attribute
     {
         return new Attribute(
-            get: fn($value) => !empty($value) ? Storage::url($value) : null,
+            get: fn ($value) => ! empty($value) ? Storage::url($value) : null,
         );
     }
 
     /**
      * Get the URL of the photo if it exists, otherwise return null.
-     *
-     * @return Attribute
      */
     protected function photo(): Attribute
     {
         return new Attribute(
-            get: fn($value) => !empty($value) ? Storage::url($value) : null,
+            get: fn ($value) => ! empty($value) ? Storage::url($value) : null,
         );
     }
 
-    /**
-     * @return Attribute
-     */
     protected function fullName(): Attribute
     {
         return new Attribute(
-            get: fn() => $this->name . ' ' . $this->last_name
+            get: fn () => $this->name.' '.$this->last_name
         );
     }
 
     /**
      * Get the expedition place that the user belongs to.
-     *
-     * @return BelongsTo
      */
     public function expeditionPlace(): BelongsTo
     {
         return $this->belongsTo(City::class, 'expedition_place_id');
     }
-
 
     public function documents()
     {
@@ -274,11 +258,13 @@ class User extends Authenticatable
     {
         $permissions = $this->getDirectPermissions()->load('moduleApp');
         $modules = $permissions->groupBy('module_app_id');
+
         return $modules->map(function ($permissions, $moduleId) {
             $module = $permissions->first()->moduleApp;
-            if (!$module) {
+            if (! $module) {
                 return null;
             }
+
             return [
                 'key' => $module->identifier,
                 'name' => $module->description,
@@ -298,20 +284,22 @@ class User extends Authenticatable
     public function permissionsWithAccess(): array
     {
         $permissionRoles = $this->permissions;
-        return $this->roles[0]->permissions->map(function (Permission $permission) use ($permissionRoles){
+
+        return $this->roles[0]->permissions->map(function (Permission $permission) use ($permissionRoles) {
             $item = [
                 'id' => $permission->id,
                 'name' => $permission->name,
                 'module' => $permission->moduleApp->description,
                 'description' => $permission->description,
                 'status' => Permission::NOT_ALLOW,
-                'status_id' => Status::STATUS_INACTIVE
+                'status_id' => Status::STATUS_INACTIVE,
             ];
 
-            if ($permissionRoles->contains('id', $permission->id)){
+            if ($permissionRoles->contains('id', $permission->id)) {
                 $item['status'] = Permission::ALLOW;
                 $item['status_id'] = Status::STATUS_ACTIVE;
             }
+
             return $item;
         })->toArray();
 
@@ -321,7 +309,7 @@ class User extends Authenticatable
     {
         $token = $this->createToken('MyApp')->plainTextToken;
         $userFiltered = $this->only([
-            'id', 'name', 'last_name', 'photo', 'document', 'phone', 'email', 'first_login', 'status_id', 'created_at', 'updated_at'
+            'id', 'name', 'last_name', 'photo', 'document', 'phone', 'email', 'first_login', 'status_id', 'created_at', 'updated_at',
         ]);
 
         $role = $this->roles->pluck('name')->first();
@@ -333,9 +321,9 @@ class User extends Authenticatable
             'permissions' => $permissions,
             'authorization' => [
                 'token' => $token,
-                'type' => 'Bearer'
+                'type' => 'Bearer',
             ],
-            'menu' => $this->getMenu()
+            'menu' => $this->getMenu(),
         ];
     }
 

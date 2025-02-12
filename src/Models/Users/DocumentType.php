@@ -2,9 +2,9 @@
 
 namespace Fidu\Models\Models\Users;
 
+use App\Models\Traits\DefaultLogs;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Traits\DefaultLogs;
 
 class DocumentType extends Model
 {
@@ -16,7 +16,7 @@ class DocumentType extends Model
         'abbreviation',
     ];
 
-     /**
+    /**
      * The attributes that should be hidden for serialization.
      *
      * @var array<int, string>

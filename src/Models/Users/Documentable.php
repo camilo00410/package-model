@@ -2,9 +2,9 @@
 
 namespace Fidu\Models\Models\Users;
 
+use App\Models\Traits\DefaultLogs;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Traits\DefaultLogs;
 
 class Documentable extends Model
 {
@@ -18,7 +18,7 @@ class Documentable extends Model
         'documentable_type',
         'mime_type',
         'type',
-        'system'
+        'system',
     ];
 
     protected $hidden = [
@@ -28,6 +28,6 @@ class Documentable extends Model
 
     public function getUrlAttribute($value)
     {
-        return url('storage/' . ltrim($value, '/'));
+        return url('storage/'.ltrim($value, '/'));
     }
 }

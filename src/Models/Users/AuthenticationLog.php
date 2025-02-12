@@ -13,7 +13,7 @@ class AuthenticationLog extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function user()  
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
@@ -27,5 +27,4 @@ class AuthenticationLog extends Model
     {
         return $this->belongsTo(AuthenticationMethod::class);
     }
-    
 }

@@ -2,9 +2,9 @@
 
 namespace Fidu\Models\Models\Users;
 
+use App\Models\Traits\DefaultLogs;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Traits\DefaultLogs;
 
 class ModuleApp extends Model
 {
@@ -16,6 +16,4 @@ class ModuleApp extends Model
         'identifier',
         'icon',
     ];
-
-
 }

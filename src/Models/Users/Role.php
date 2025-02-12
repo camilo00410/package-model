@@ -2,12 +2,12 @@
 
 namespace Fidu\Models\Models\Users;
 
+use App\Models\Traits\DefaultLogs;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Permission\Models\Role as SpatieRole;
-use App\Models\Traits\DefaultLogs;
 
 class Role extends SpatieRole
 {
@@ -16,7 +16,10 @@ class Role extends SpatieRole
 
     protected $guard_name = 'sanctum';
 
-    protected function getDefaultGuardName(): string { return env('AUTH_GUARD'); }
+    protected function getDefaultGuardName(): string
+    {
+        return env('AUTH_GUARD');
+    }
 
     protected $casts = [
         'authorization_level_id' => 'integer',
@@ -68,24 +71,26 @@ class Role extends SpatieRole
             config('permission.table_names.model_has_roles'))->withTimestamps();
     }
 
-    public function permissionsWithAccess() : array
+    public function permissionsWithAccess(): array
     {
         $permissionRoles = $this->permissions;
-        return Permission::all()->map(function (Permission $permission) use ($permissionRoles){
+
+        return Permission::all()->map(function (Permission $permission) use ($permissionRoles) {
             $item = [
                 'id' => $permission->id,
                 'name' => $permission->name,
                 'module' => $permission->moduleApp->description,
                 'description' => $permission->description,
                 'status' => Permission::NOT_ALLOW,
-                'status_id' => Status::STATUS_INACTIVE
+                'status_id' => Status::STATUS_INACTIVE,
             ];
 
-            if ($permissionRoles->contains('id', $permission->id)){
+            if ($permissionRoles->contains('id', $permission->id)) {
                 $item['status'] = Permission::ALLOW;
                 $item['status_id'] = Status::STATUS_ACTIVE;
 
             }
+
             return $item;
         })->toArray();
     }

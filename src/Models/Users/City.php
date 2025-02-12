@@ -2,9 +2,9 @@
 
 namespace Fidu\Models\Models\Users;
 
+use App\Models\Traits\DefaultLogs;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Traits\DefaultLogs;
 
 class City extends Model
 {
@@ -16,7 +16,7 @@ class City extends Model
     protected $fillable = [
         'department_id',
         'code',
-        'name'
+        'name',
     ];
 
     public function department()

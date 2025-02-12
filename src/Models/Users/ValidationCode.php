@@ -10,11 +10,12 @@ use Spatie\Activitylog\Traits\CausesActivity;
 
 class ValidationCode extends Model
 {
-    use HasFactory;
     use CausesActivity;
     use DefaultLogs;
+    use HasFactory;
 
     const EMAIL_TYPE = 'email';
+
     const SMS_TYPE = 'sms';
 
     protected $fillable = [
@@ -22,7 +23,7 @@ class ValidationCode extends Model
         'type',
         'contact',
         'code',
-        'expires_at'
+        'expires_at',
     ];
 
     protected $casts = [
