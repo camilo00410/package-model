@@ -16,7 +16,7 @@ class ModelsServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__.'/../config/models.php' => config_path('fidu-models.php'),
-        ], 'fidu-models-config');
+            __DIR__.'/../src/Models/Users' => app_path('Models/Users'),
+        ], 'fidu-models-users');
     }
 }
